@@ -7,18 +7,40 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View {    
+    @Bindable var model: Model
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            if model.started {
+                if let acceleration = model.acceleration {
+                    VStack {
+                        Text("x: \(acceleration.x)")
+                        Text("y: \(acceleration.y)")
+                        Text("z: \(acceleration.z)")
+                        Button("Stop") {
+                            model.stopAccelSensor()
+                        }.padding()
+                    }
+                }
+            } else {
+                Button("Start") {
+                    model.startAccelSensor()
+                }
+            }
+            Button("Error") {
+                model.setError("Big error")
+            }
         }
         .padding()
+        .alert(model.errorString, isPresented: $model.showError) {
+            Button("OK") {
+                model.clearError()
+            }
+        }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(model: Model()!)
 }
