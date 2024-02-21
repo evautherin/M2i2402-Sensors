@@ -8,16 +8,18 @@
 import OSLog
 import SwiftUI
 import CoreMotion
+import AsyncAlgorithms
 import AsyncExtensions
 
 @Observable
 class ReactiveModel {
-    var started = false
+    var started: Bool { accelerometerTasks != .none }
     var acceleration: CMAcceleration?
     var showError = false
     var errorString = ""
     
     private let manager = CMMotionManager()
+    private var accelerometerTasks: Task<(), Swift.Error>?
     private var fileIndex = 0
     private var directoryURL: URL
     private var accelerations = [CMAccelerometerData]()
@@ -27,7 +29,6 @@ class ReactiveModel {
     
     enum Error: Swift.Error {
         case documentDirectory
-        case accelerometer
     }
     
     init?() {
@@ -50,32 +51,31 @@ class ReactiveModel {
             return nil
         }
         
-        let accelerationSequence = AsyncThrowingStream<CMAccelerometerData, Swift.Error>(
-            bufferingPolicy: .bufferingNewest(1)
-        ) { continuation in
-            defaultLog.debug("Setting continuation")
-            self.continuation = continuation
-            
-            continuation.onTermination = { [self] termination in
-                defaultLog.debug("Sequence terminated")
-                self.manager.stopAccelerometerUpdates()
-                self.started = false
-                
-                defaultLog.debug("Got accelerations: \(self.accelerations.count)")
-            }
-        }
-
-        Task {
-            do {
-                for try await data in accelerationSequence {
-                    defaultLog.debug("Received data: \(data)")
-                    self.acceleration = data.acceleration
-                    self.accelerations.append(data)
-                }
-            } catch {
-                setError("\(error.localizedDescription)")
-            }
-        }
+//        let accelerationSequence = AsyncThrowingStream<CMAccelerometerData, Swift.Error>(
+//            bufferingPolicy: .bufferingNewest(1)
+//        ) { continuation in
+//            defaultLog.debug("Setting continuation")
+//            self.continuation = continuation
+//            
+//            continuation.onTermination = { [self] termination in
+//                defaultLog.debug("Sequence terminated")
+//                self.manager.stopAccelerometerUpdates()
+//                
+//                defaultLog.debug("Got accelerations: \(self.accelerations.count)")
+//            }
+//        }
+//
+//        Task {
+//            do {
+//                for try await data in accelerationSequence {
+//                    defaultLog.debug("Received data: \(data)")
+//                    self.acceleration = data.acceleration
+//                    self.accelerations.append(data)
+//                }
+//            } catch {
+//                setError("\(error.localizedDescription)")
+//            }
+//        }
     }
     
     func setError(_ message: String) {
@@ -89,21 +89,61 @@ class ReactiveModel {
     }
     
     func startAccelSensor() {
-        self.started = true
-        manager.accelerometerUpdateInterval = 0.02
-        manager.startAccelerometerUpdates(to: OperationQueue()) { [self] data, error in
-            if error != nil {
-                self.continuation?.finish(throwing: Error.accelerometer)
-                return
-            }
-            
-            guard let data else { return }
-            defaultLog.debug("Emitting data: \(data)")
-            self.continuation?.yield(data)
+        let accelerationUpdates = AsyncAccelerometer(manager: manager).accelerationUpdates.share()
+        let chunks = accelerationUpdates.chunked(by: .repeating(every: .seconds(5)))
+        let indexedChunks = chunks.scan((0, [CMAccelerometerData]())) { previousIndexedChunk, chunk in
+            let (previousIndex, _) = previousIndexedChunk
+            return (previousIndex + 1, chunk)
         }
+
+        self.accelerometerTasks = Task {
+            await withThrowingTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    for try await (i, chunk) in indexedChunks {
+                        defaultLog.debug("Chunk #\(i) with \(chunk.count) elements")
+                    }
+                }
+                
+                group.addTask {
+                    for try await data in accelerationUpdates {
+                        self.acceleration = data.acceleration
+                    }
+                }
+            }
+        }
+        
     }
         
     func stopAccelSensor() {
-        self.continuation?.finish()
+        self.accelerometerTasks?.cancel()
+        self.accelerometerTasks = .none
+    }
+}
+
+struct AsyncAccelerometer {
+    let manager: CMMotionManager
+    
+    var accelerationUpdates: AsyncThrowingStream<CMAccelerometerData, Error> {
+        AsyncThrowingStream<CMAccelerometerData, Error>(
+            bufferingPolicy: .bufferingNewest(1)
+        ) { continuation in
+            
+            defaultLog.debug("*** startAccelerometerUpdates")
+            manager.accelerometerUpdateInterval = 0.02
+            manager.startAccelerometerUpdates(to: OperationQueue()) { data, error in
+                if let error {
+                    continuation.finish(throwing: error)
+                }
+                
+                if let data {
+                    continuation.yield(data)
+                }
+            }
+            
+            continuation.onTermination = { termination in
+                defaultLog.debug("*** stopAccelerometerUpdates")
+                manager.stopAccelerometerUpdates()
+            }
+        }
     }
 }

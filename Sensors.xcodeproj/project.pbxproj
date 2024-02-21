@@ -15,6 +15,7 @@
 		8F3FAAE12B8644E000C5407C /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAAE02B8644E000C5407C /* Model.swift */; };
 		8F3FAAE32B86470D00C5407C /* ReactiveModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */; };
 		8F3FAAE62B8655AA00C5407C /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 8F3FAAE52B8655AA00C5407C /* AsyncExtensions */; };
+		8F3FAAE92B86799A00C5407C /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 8F3FAAE82B86799A00C5407C /* AsyncAlgorithms */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F3FAAE62B8655AA00C5407C /* AsyncExtensions in Frameworks */,
+				8F3FAAE92B86799A00C5407C /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +100,7 @@
 			name = Sensors;
 			packageProductDependencies = (
 				8F3FAAE52B8655AA00C5407C /* AsyncExtensions */,
+				8F3FAAE82B86799A00C5407C /* AsyncAlgorithms */,
 			);
 			productName = Sensors;
 			productReference = 8F3FAACC2B84FD4A00C5407C /* Sensors.app */;
@@ -129,6 +132,7 @@
 			mainGroup = 8F3FAAC32B84FD4A00C5407C;
 			packageReferences = (
 				8F3FAAE42B8655AA00C5407C /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
+				8F3FAAE72B86799A00C5407C /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 			);
 			productRefGroup = 8F3FAACD2B84FD4A00C5407C /* Products */;
 			projectDirPath = "";
@@ -378,6 +382,14 @@
 				minimumVersion = 0.5.2;
 			};
 		};
+		8F3FAAE72B86799A00C5407C /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -385,6 +397,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8F3FAAE42B8655AA00C5407C /* XCRemoteSwiftPackageReference "AsyncExtensions" */;
 			productName = AsyncExtensions;
+		};
+		8F3FAAE82B86799A00C5407C /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8F3FAAE72B86799A00C5407C /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
