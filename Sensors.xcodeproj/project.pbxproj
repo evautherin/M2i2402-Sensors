@@ -12,6 +12,9 @@
 		8F3FAAD42B84FD4C00C5407C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F3FAAD32B84FD4C00C5407C /* Assets.xcassets */; };
 		8F3FAAD72B84FD4C00C5407C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F3FAAD62B84FD4C00C5407C /* Preview Assets.xcassets */; };
 		8F3FAADE2B84FDAA00C5407C /* BaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAADD2B84FDAA00C5407C /* BaseModel.swift */; };
+		8F3FAAE12B8644E000C5407C /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAAE02B8644E000C5407C /* Model.swift */; };
+		8F3FAAE32B86470D00C5407C /* ReactiveModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */; };
+		8F3FAAE62B8655AA00C5407C /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 8F3FAAE52B8655AA00C5407C /* AsyncExtensions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,8 @@
 		8F3FAAD62B84FD4C00C5407C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8F3FAADD2B84FDAA00C5407C /* BaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseModel.swift; sourceTree = "<group>"; };
 		8F3FAADF2B850BD900C5407C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8F3FAAE02B8644E000C5407C /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactiveModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F3FAAE62B8655AA00C5407C /* AsyncExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +64,8 @@
 				8F3FAACF2B84FD4A00C5407C /* SensorsApp.swift */,
 				8F3FAAD12B84FD4A00C5407C /* ContentView.swift */,
 				8F3FAADD2B84FDAA00C5407C /* BaseModel.swift */,
+				8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */,
+				8F3FAAE02B8644E000C5407C /* Model.swift */,
 				8F3FAAD32B84FD4C00C5407C /* Assets.xcassets */,
 				8F3FAAD52B84FD4C00C5407C /* Preview Content */,
 			);
@@ -88,6 +96,9 @@
 			dependencies = (
 			);
 			name = Sensors;
+			packageProductDependencies = (
+				8F3FAAE52B8655AA00C5407C /* AsyncExtensions */,
+			);
 			productName = Sensors;
 			productReference = 8F3FAACC2B84FD4A00C5407C /* Sensors.app */;
 			productType = "com.apple.product-type.application";
@@ -116,6 +127,9 @@
 				Base,
 			);
 			mainGroup = 8F3FAAC32B84FD4A00C5407C;
+			packageReferences = (
+				8F3FAAE42B8655AA00C5407C /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
+			);
 			productRefGroup = 8F3FAACD2B84FD4A00C5407C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -145,6 +159,8 @@
 				8F3FAADE2B84FDAA00C5407C /* BaseModel.swift in Sources */,
 				8F3FAAD22B84FD4A00C5407C /* ContentView.swift in Sources */,
 				8F3FAAD02B84FD4A00C5407C /* SensorsApp.swift in Sources */,
+				8F3FAAE32B86470D00C5407C /* ReactiveModel.swift in Sources */,
+				8F3FAAE12B8644E000C5407C /* Model.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +368,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8F3FAAE42B8655AA00C5407C /* XCRemoteSwiftPackageReference "AsyncExtensions" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sideeffect-io/AsyncExtensions";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8F3FAAE52B8655AA00C5407C /* AsyncExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8F3FAAE42B8655AA00C5407C /* XCRemoteSwiftPackageReference "AsyncExtensions" */;
+			productName = AsyncExtensions;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8F3FAAC42B84FD4A00C5407C /* Project object */;
 }

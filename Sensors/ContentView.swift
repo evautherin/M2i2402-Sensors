@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {    
-    @Bindable var model: BaseModel
+    @Bindable var model: SensorsApp.Model
     
     var body: some View {
         VStack {
@@ -18,9 +18,6 @@ struct ContentView: View {
                         Text("x: \(acceleration.x)")
                         Text("y: \(acceleration.y)")
                         Text("z: \(acceleration.z)")
-                        Button("Stop") {
-                            model.stopAccelSensor()
-                        }.padding()
                     }
                 }
             } else {
@@ -28,6 +25,9 @@ struct ContentView: View {
                     model.startAccelSensor()
                 }
             }
+            Button("Stop") {
+                model.stopAccelSensor()
+            }.padding()
             Button("Error") {
                 model.setError("Big error")
             }
@@ -42,5 +42,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(model: BaseModel()!)
+    ContentView(model: SensorsApp.Model()!)
 }

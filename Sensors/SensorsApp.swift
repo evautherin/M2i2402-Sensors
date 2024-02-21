@@ -12,10 +12,12 @@ let defaultLog = Logger()
 
 @main
 struct SensorsApp: App {
-    var model: BaseModel
+    typealias Model = ReactiveModel
+    
+    var model: Model
     
     init() {
-        guard let model = BaseModel() else {
+        guard let model = Model() else {
             defaultLog.critical("Cannot insanciate model")
             exit(1)
         }
