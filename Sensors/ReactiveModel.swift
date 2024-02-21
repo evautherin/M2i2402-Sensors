@@ -42,7 +42,7 @@ class ReactiveModel {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyyMMdd_HHmmss"
             let dateString = formatter.string(from: Date())
-            self.directoryURL = documentURL.appendingPathComponent("BinaryData \(dateString).csv")
+            self.directoryURL = documentURL.appendingPathComponent("BinaryData \(dateString)")
             if !fm.fileExists(atPath: directoryURL.path) {
                 try fm.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
             }
@@ -99,8 +99,13 @@ class ReactiveModel {
         self.accelerometerTasks = Task {
             await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
-                    for try await (i, chunk) in indexedChunks {
-                        defaultLog.debug("Chunk #\(i) with \(chunk.count) elements")
+                    do {
+                        for try await (i, chunk) in indexedChunks {
+                            defaultLog.debug("Chunk #\(i) with \(chunk.count) elements")
+                            try self.write(indexedChunk: (i, chunk))
+                        }
+                    } catch {
+                        self.setError("\(error.localizedDescription)")
                     }
                 }
                 
@@ -111,7 +116,38 @@ class ReactiveModel {
                 }
             }
         }
+    }
+    
+    func write(indexedChunk: (Int, [CMAccelerometerData])) throws {
+        let (fileIndex, accelerations) = indexedChunk
+        let fileName = String(format: "%05d.csv", fileIndex)
+        self.fileIndex += 1
         
+        let csvData = accelerations
+            .map { data in
+                
+                func ms2(_ x: Double) -> Float {
+                    Float(x*9.81)
+                }
+
+                let (x,y,z) = (
+                    ms2(data.acceleration.x),
+                    ms2(data.acceleration.y),
+                    ms2(data.acceleration.z)
+                )
+                return "\(x)\t\(y)\t\(z)\t\(data.timestamp)"
+            }
+            .joined(separator: "\n")
+            .data(using: .utf8)
+        
+        guard let csvData else {
+            setError("Cannot create data with accelerations")
+            return
+        }
+        
+        let fileURL = directoryURL.appendingPathComponent("\(fileName)")
+        try csvData.write(to: fileURL)
+        defaultLog.debug("Accelerations (\(accelerations.count) written to \(fileURL.absoluteString)")
     }
         
     func stopAccelSensor() {
