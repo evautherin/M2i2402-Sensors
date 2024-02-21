@@ -10,7 +10,7 @@ import SwiftUI
 import CoreMotion
 
 @Observable
-class Model {
+class BaseModel {
     var started = false
     var acceleration: CMAcceleration?
     var showError = false
@@ -68,6 +68,14 @@ class Model {
             guard let data else { return }
             self.acceleration = data.acceleration
             self.accelerations.append(data)
+        }
+    }
+    
+    func startMagSensor() {
+        manager.magnetometerUpdateInterval = 0.1
+        manager.startMagnetometerUpdates(to: OperationQueue()) { data, error in
+            guard let data else { return }
+            print(data)
         }
     }
     

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {    
-    @Bindable var model: Model
+    @Bindable var model: BaseModel
     
     var body: some View {
         VStack {
@@ -42,5 +42,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(model: Model()!)
+    ContentView(model: BaseModel()!)
 }
