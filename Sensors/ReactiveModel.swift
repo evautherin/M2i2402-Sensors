@@ -89,7 +89,7 @@ class ReactiveModel {
     }
     
     func startAccelSensor() {
-        let accelerationUpdates = AsyncAccelerometer(manager: manager).accelerationUpdates.share()
+        let accelerationUpdates = manager.accelerationUpdates.share()
         let chunks = accelerationUpdates.chunked(by: .repeating(every: .seconds(5)))
         let indexedChunks = chunks.scan((0, [CMAccelerometerData]())) { previousIndexedChunk, chunk in
             let (previousIndex, _) = previousIndexedChunk
@@ -156,17 +156,15 @@ class ReactiveModel {
     }
 }
 
-struct AsyncAccelerometer {
-    let manager: CMMotionManager
-    
+extension CMMotionManager {
     var accelerationUpdates: AsyncThrowingStream<CMAccelerometerData, Error> {
         AsyncThrowingStream<CMAccelerometerData, Error>(
             bufferingPolicy: .bufferingNewest(1)
         ) { continuation in
             
             defaultLog.debug("*** startAccelerometerUpdates")
-            manager.accelerometerUpdateInterval = 0.02
-            manager.startAccelerometerUpdates(to: OperationQueue()) { data, error in
+            self.accelerometerUpdateInterval = 0.02
+            self.startAccelerometerUpdates(to: OperationQueue()) { data, error in
                 if let error {
                     continuation.finish(throwing: error)
                 }
@@ -178,7 +176,7 @@ struct AsyncAccelerometer {
             
             continuation.onTermination = { termination in
                 defaultLog.debug("*** stopAccelerometerUpdates")
-                manager.stopAccelerometerUpdates()
+                self.stopAccelerometerUpdates()
             }
         }
     }
