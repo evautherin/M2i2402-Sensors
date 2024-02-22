@@ -8,21 +8,20 @@
 import OSLog
 import SwiftUI
 import CoreMotion
+import simd
 import AsyncAlgorithms
 import AsyncExtensions
 
 @Observable
 class ReactiveModel {
     var started: Bool { accelerometerTasks != .none }
-    var acceleration: CMAcceleration?
-    var showError = false
-    var errorString = ""
+    var acceleration: SIMD3<Double>?
+//    var showError = false
+//    var errorString = ""
+    var displayableError = DisplayableError.noError
     
     private let manager = CMMotionManager()
     private var accelerometerTasks: Task<(), Swift.Error>?
-//    private var fileIndex = 0
-//    private var directoryURL: URL
-//    private var accelerations = [CMAccelerometerData]()
     
     typealias AccelerationContinuation = AsyncThrowingStream<CMAccelerometerData, Swift.Error>.Continuation
     private var continuation: AccelerationContinuation?
@@ -31,77 +30,61 @@ class ReactiveModel {
         case documentDirectory
     }
     
-//    init?() {
-//        do {
-//            let fm = FileManager.default
-//            let documentURL = fm.urls(for: .documentDirectory, in: .userDomainMask).last
-//            guard let documentURL else {
-//                throw Error.documentDirectory
-//            }
-//
-//            let formatter = DateFormatter()
-//            formatter.dateFormat = "yyyyMMdd_HHmmss"
-//            let dateString = formatter.string(from: Date())
-//            self.directoryURL = documentURL.appendingPathComponent("BinaryData \(dateString)")
-//            if !fm.fileExists(atPath: directoryURL.path) {
-//                try fm.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
-//            }
-//        } catch {
-//            defaultLog.error("File system error: \(error.localizedDescription)")
-//            return nil
-//        }
-//
-////        let accelerationSequence = AsyncThrowingStream<CMAccelerometerData, Swift.Error>(
-////            bufferingPolicy: .bufferingNewest(1)
-////        ) { continuation in
-////            defaultLog.debug("Setting continuation")
-////            self.continuation = continuation
-////
-////            continuation.onTermination = { [self] termination in
-////                defaultLog.debug("Sequence terminated")
-////                self.manager.stopAccelerometerUpdates()
-////
-////                defaultLog.debug("Got accelerations: \(self.accelerations.count)")
-////            }
-////        }
-////
-////        Task {
-////            do {
-////                for try await data in accelerationSequence {
-////                    defaultLog.debug("Received data: \(data)")
-////                    self.acceleration = data.acceleration
-////                    self.accelerations.append(data)
-////                }
-////            } catch {
-////                setError("\(error.localizedDescription)")
-////            }
-////        }
-//    }
+    enum DisplayableError: Equatable {
+        case noError
+        case error(String)
+    }
+    
     
     func setError(_ message: String) {
         defaultLog.error("\(message)")
-        errorString = message
-        showError = true
+//        errorString = message
+//        showError = true
+        
+        self.displayableError = .error(message)
     }
     
     func clearError() {
-        errorString = ""
+//        errorString = ""
+        self.displayableError = .noError
     }
     
     func startAccelSensor() {
+        typealias AccelerometerData = (SIMD3<Double>, TimeInterval)
+        let period = 0.5
         let accelerationUpdates = manager.accelerationUpdates.share()
-        
-//        let chunks = accelerationUpdates.chunked(by: .repeating(every: .seconds(5)))
-//        let indexedChunks = chunks.scan((0, [CMAccelerometerData]())) { previousIndexedChunk, chunk in
-//            let (previousIndex, _) = previousIndexedChunk
-//            return (previousIndex + 1, chunk)
-//        }
-        
+                
         let indexedChunks = accelerationUpdates
             .chunked(by: .repeating(every: .seconds(5)))
             .scan((0, [CMAccelerometerData]())) { previousIndexedChunk, chunk in
                 let (previousIndex, _) = previousIndexedChunk
                 return (previousIndex + 1, chunk)
+            }
+        
+        let filteredAccelerations = accelerationUpdates
+            .scan(AccelerometerData?.none) { state, data in
+                let acceleration = SIMD3<Double>(
+                    data.acceleration.x,
+                    data.acceleration.y,
+                    data.acceleration.z
+                )
+                guard let (filtered0, timestamp0) = state else {
+                    return (acceleration, data.timestamp)
+                }
+                let timestamp1 = data.timestamp
+                let dt = timestamp1 - timestamp0
+                
+                guard dt > 0.0, dt < period else {
+                    return (acceleration, data.timestamp)
+                }
+                
+                let ratio = dt/period
+                let filteredAcceleration = filtered0*(1.0 - ratio) + acceleration*ratio
+                return (filteredAcceleration, data.timestamp)
+            }
+            .map { $0! }
+            .removeDuplicates {
+                $1.1 - $0.1 < period
             }
 
         self.accelerometerTasks = Task { [self] in
@@ -120,8 +103,9 @@ class ReactiveModel {
                 }
                 
                 group.addTask {
-                    for try await data in accelerationUpdates {
-                        self.acceleration = data.acceleration
+                    for try await data in filteredAccelerations {
+                        let (acceleration, _) = data
+                        self.acceleration = acceleration
                     }
                 }
             }

@@ -13,21 +13,10 @@ let defaultLog = Logger()
 @main
 struct SensorsApp: App {
     typealias Model = ReactiveModel
-    
-    var model: Model
-    
-    init() {
-        guard let model = Model() else {
-            defaultLog.critical("Cannot insanciate model")
-            exit(1)
-        }
         
-        self.model = model
-    }
-    
     var body: some Scene {
         WindowGroup {
-            ContentView(model: self.model)
+            ContentView().environment(Model())
         }
     }
 }

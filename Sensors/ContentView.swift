@@ -8,7 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {    
-    @Bindable var model: SensorsApp.Model
+    @Environment(SensorsApp.Model.self) var model: SensorsApp.Model
+    @State var showError = false
+    
+    var errorMessage: String {
+        switch model.displayableError {
+        case .noError: return ""
+        case .error(let message): return message
+        }
+    }
     
     var body: some View {
         VStack {
@@ -33,14 +41,20 @@ struct ContentView: View {
             }.padding()
         }
         .padding()
-        .alert(model.errorString, isPresented: $model.showError) {
+        .alert(errorMessage, isPresented: $showError) {
             Button("OK") {
                 model.clearError()
+            }
+        }
+        .onChange(of: model.displayableError) { oldValue, newValue in
+            switch newValue {
+            case .noError: self.showError = false
+            case .error(_): self.showError = true
             }
         }
     }
 }
 
 #Preview {
-    ContentView(model: SensorsApp.Model()!)
+    ContentView().environment(SensorsApp.Model())
 }
