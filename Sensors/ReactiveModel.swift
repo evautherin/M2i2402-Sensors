@@ -16,42 +16,16 @@ import AsyncExtensions
 class ReactiveModel {
     var started: Bool { accelerometerTasks != .none }
     var acceleration: SIMD3<Double>?
-//    var showError = false
-//    var errorString = ""
     var displayableError = DisplayableError.noError
     
-    private let manager = CMMotionManager()
-    private var accelerometerTasks: Task<(), Swift.Error>?
-    
-    typealias AccelerationContinuation = AsyncThrowingStream<CMAccelerometerData, Swift.Error>.Continuation
-    private var continuation: AccelerationContinuation?
-    
-    enum Error: Swift.Error {
-        case documentDirectory
-    }
-    
-    enum DisplayableError: Equatable {
-        case noError
-        case error(String)
-    }
-    
-    
-    func setError(_ message: String) {
-        defaultLog.error("\(message)")
-//        errorString = message
-//        showError = true
-        
-        self.displayableError = .error(message)
-    }
-    
-    func clearError() {
-//        errorString = ""
-        self.displayableError = .noError
-    }
+    private var accelerometerTasks: Task<(), Error>?
     
     func startAccelSensor() {
         typealias AccelerometerData = (acceleration: SIMD3<Double>, timestamp: TimeInterval)
+        
         let period = 0.5
+        
+        let manager = CMMotionManager()
         let accelerationUpdates = manager.accelerationUpdates.share()
                 
         let indexedChunks = accelerationUpdates
@@ -119,8 +93,32 @@ class ReactiveModel {
     
 }
 
+// MARK: Error handling
+extension ReactiveModel {
+    
+    enum DisplayableError: Equatable {
+        case noError
+        case error(String)
+    }
+    
+    func setError(_ message: String) {
+        defaultLog.error("\(message)")
+        self.displayableError = .error(message)
+    }
+    
+    func clearError() {
+        self.displayableError = .noError
+    }
+}
+
+// MARK: File System
 extension ReactiveModel {
     func createDirectory() throws -> URL {
+        
+        enum Error: Swift.Error {
+            case documentDirectory
+        }
+        
         let fm = FileManager.default
         let documentURL = fm.urls(for: .documentDirectory, in: .userDomainMask).last
         guard let documentURL else {
@@ -137,7 +135,6 @@ extension ReactiveModel {
         return directoryURL
     }
 
-    // MARK: File System
     func write(indexedChunk: (Int, [CMAccelerometerData]), directoryURL: URL) throws {
         let (fileIndex, accelerations) = indexedChunk
         let fileName = String(format: "%05d.csv", fileIndex)
