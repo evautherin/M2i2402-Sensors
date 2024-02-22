@@ -16,6 +16,7 @@
 		8F3FAAE32B86470D00C5407C /* ReactiveModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */; };
 		8F3FAAE62B8655AA00C5407C /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 8F3FAAE52B8655AA00C5407C /* AsyncExtensions */; };
 		8F3FAAE92B86799A00C5407C /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 8F3FAAE82B86799A00C5407C /* AsyncAlgorithms */; };
+		8F3FAAED2B87550000C5407C /* CMMotionManager_Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3FAAEC2B87550000C5407C /* CMMotionManager_Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		8F3FAADF2B850BD900C5407C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8F3FAAE02B8644E000C5407C /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactiveModel.swift; sourceTree = "<group>"; };
+		8F3FAAEC2B87550000C5407C /* CMMotionManager_Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMMotionManager_Extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				8F3FAAD12B84FD4A00C5407C /* ContentView.swift */,
 				8F3FAADD2B84FDAA00C5407C /* BaseModel.swift */,
 				8F3FAAE22B86470D00C5407C /* ReactiveModel.swift */,
+				8F3FAAEC2B87550000C5407C /* CMMotionManager_Extension.swift */,
 				8F3FAAE02B8644E000C5407C /* Model.swift */,
 				8F3FAAD32B84FD4C00C5407C /* Assets.xcassets */,
 				8F3FAAD52B84FD4C00C5407C /* Preview Content */,
@@ -160,6 +163,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F3FAAED2B87550000C5407C /* CMMotionManager_Extension.swift in Sources */,
 				8F3FAADE2B84FDAA00C5407C /* BaseModel.swift in Sources */,
 				8F3FAAD22B84FD4A00C5407C /* ContentView.swift in Sources */,
 				8F3FAAD02B84FD4A00C5407C /* SensorsApp.swift in Sources */,
