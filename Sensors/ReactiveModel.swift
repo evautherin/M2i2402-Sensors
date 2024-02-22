@@ -50,7 +50,7 @@ class ReactiveModel {
     }
     
     func startAccelSensor() {
-        typealias AccelerometerData = (SIMD3<Double>, TimeInterval)
+        typealias AccelerometerData = (acceleration: SIMD3<Double>, timestamp: TimeInterval)
         let period = 0.5
         let accelerationUpdates = manager.accelerationUpdates.share()
                 
@@ -82,9 +82,9 @@ class ReactiveModel {
                 let filteredAcceleration = filtered0*(1.0 - ratio) + acceleration*ratio
                 return (filteredAcceleration, data.timestamp)
             }
-            .map { $0! }
+            .compacted() // Remove .none values
             .removeDuplicates {
-                $1.1 - $0.1 < period
+                $1.timestamp - $0.timestamp < period
             }
 
         self.accelerometerTasks = Task { [self] in
